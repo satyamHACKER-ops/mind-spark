@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#06101f">
+<title>Mind Spark — Offline Games</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#050b16;--panel:#0c1a30;--panel2:#102641;--line:#28547d;--blue:#32b4ff;--gold:#ffc22e;--red:#e84b55;--green:#39d98a;--text:#eef7ff;--muted:#91a8c1}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -5%,#19456e 0,#071326 38%,#030710 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+button{font:inherit}.app{width:min(720px,100%);margin:auto;min-height:100vh;padding:13px 13px 28px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.brand{display:flex;gap:9px;align-items:center}.brandmark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#1267a8,#10305a);border:1px solid #3abaff;box-shadow:0 0 22px #24aaff33;font-size:21px}.logo{font-size:23px;font-weight:950}.sub{font-size:10px;color:var(--muted)}.badge{font-size:9px;padding:7px 9px;border:1px solid #2a5a83;border-radius:99px;color:#9edcff;background:#07172a}
+.screen{display:none!important}.screen.active{display:block!important}.screen.active{display:block}.hero{position:relative;overflow:hidden;border:1px solid #24547d;border-radius:25px;padding:23px 19px;background:linear-gradient(145deg,#10345a,#08172b);box-shadow:0 14px 45px #0008}.hero:after{content:"";position:absolute;right:-50px;top:-65px;width:190px;height:190px;border-radius:50%;background:#2db5ff18;box-shadow:0 0 80px #2db5ff22}.hero .heroicon{font-size:38px}.hero h1{margin:4px 0;font-size:30px}.hero p{margin:0;color:#b7cbe0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.card{position:relative;overflow:hidden;text-align:left;color:white;min-height:128px;padding:15px;border-radius:19px;border:1px solid #214a70;background:linear-gradient(145deg,#112946,#09172b);box-shadow:0 8px 24px #0005;cursor:pointer}.card:active,.btn:active,.answer:active{transform:scale(.98)}.card .icon{font-size:32px}.card b{display:block;margin-top:8px;font-size:16px}.card span{display:block;margin-top:3px;color:#8fa7c0;font-size:11px}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}.btn{border:1px solid #2a527b;background:#102440;color:#eef7ff;border-radius:11px;padding:9px 13px;cursor:pointer}.primary{background:linear-gradient(135deg,#237ef0,#31b9ff);border-color:#48bdff}.title{font-size:23px;font-weight:900;margin:2px 0 11px}.panel{background:linear-gradient(145deg,#0d1d34,#081326);border:1px solid #24486d;border-radius:20px;padding:13px;box-shadow:0 12px 35px #0006}
+.stats,.gameinfo{display:flex;justify-content:space-between;color:#a5bad1;font-size:12px;margin-bottom:9px}.mini{text-align:center;color:#7892ad;font-size:10px;margin-top:9px}
+#memoryGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.memory{aspect-ratio:1;border:1px solid #2c5b88;border-radius:13px;background:linear-gradient(145deg,#15365d,#0b1b34);color:transparent;font-size:29px;cursor:pointer;transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .25s}.memory:before{content:"✦";color:#54bfff88}.memory.open,.memory.matched{transform:rotateY(180deg);color:white;background:linear-gradient(145deg,#24517f,#162e50);box-shadow:0 0 18px #2bb1ff33}.memory.open:before,.memory.matched:before{content:""}.memory.matched{outline:2px solid var(--green)}
+/* Chess */
+#chessBoard{width:min(95vw,590px);margin:auto;display:grid;grid-template-columns:repeat(8,1fr);border:6px solid #111a25;border-radius:7px;overflow:hidden;box-shadow:0 14px 35px #0009}.square{aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;font-family:"Times New Roman",serif;font-size:clamp(31px,8.6vw,58px);line-height:1;user-select:none}.light{background:#f0d9b5}.dark{background:#b58863}.square.whitePiece{color:#fff;text-shadow:0 2px 0 #17202a,0 -1px 0 #17202a,1px 0 #17202a,-1px 0 #17202a,0 3px 7px #0008}.square.blackPiece{color:#111820;text-shadow:0 2px 2px #0006}.selected{box-shadow:inset 0 0 0 4px #ffd229}.legalhint:after{content:"";position:absolute;width:23%;height:23%;border-radius:50%;background:#20c98b;box-shadow:0 0 0 3px #ffffff44}.capturehint{box-shadow:inset 0 0 0 4px #ed4c59}.chessmsg{text-align:center;min-height:22px;margin:8px 0;color:#c7d7e9}.turnpill{display:inline-block;padding:5px 9px;border-radius:99px;background:#112945;border:1px solid #2a527b;font-size:11px}
+/* Carrom */
+#carromCanvas{width:100%;height:auto;display:block;border-radius:18px;border:1px solid #162637;background:#fff;touch-action:none}.carrom-help{color:#91a8c0;font-size:10px;text-align:center;margin-top:8px}.scoreline{font-weight:800;color:#d8e7f5}
+/* Math */
+.progress{height:9px;background:#142942;border-radius:99px;overflow:hidden;border:1px solid #24496e;margin:8px 0 13px}.progress i{display:block;height:100%;background:linear-gradient(90deg,#2d8cff,#39d6ff);transition:width .25s}.question{font-size:38px;font-weight:950;text-align:center;margin:18px 0}.answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}.answer{padding:15px;border-radius:14px;border:1px solid #2b527c;background:#102440;color:white;font-size:21px;cursor:pointer;transition:.15s}.answer.correct{background:#0e704b;border-color:#42e39a;color:#dffff1}.answer.wrong{background:#7b2029;border-color:#ff6871;color:#ffe8ea}.answer:disabled{opacity:1}.roundmsg{text-align:center;min-height:22px;color:#a9bed3;font-size:12px;margin-top:9px}
+/* Splash */
+.overlay{position:fixed;z-index:99;inset:0;display:flex;align-items:center;justify-content:center;background:#030811;animation:fade .8s ease 1.7s forwards;pointer-events:none}.splash{text-align:center;animation:pop .65s ease}.splashmark{font-size:70px;filter:drop-shadow(0 0 20px #29baff66)}.splash h2{font-size:33px;margin:2px 0}.splash p{margin:0;color:#8fa9c2}.loader{width:160px;height:4px;background:#142b47;border-radius:9px;overflow:hidden;margin:19px auto}.loader i{display:block;height:100%;background:#37baff;width:0;animation:load 1.4s ease forwards}
+@keyframes pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}@keyframes load{to{width:100%}}@keyframes fade{to{opacity:0;visibility:hidden}}
+.modebar{display:flex;gap:8px;margin:10px 0 12px}.mode{flex:1;padding:12px 8px;border-radius:14px;border:1px solid #285b87;background:#0d2138;color:#cfe6ff;font-weight:700;font-size:13px}.mode.active{background:linear-gradient(135deg,#209cf0,#43c3ff);color:#061322;border-color:#55c8ff;box-shadow:0 6px 20px #168fe955}.mode:active{transform:scale(.98)}
+@media(max-width:430px){.app{padding:10px}.hero h1{font-size:27px}.card{min-height:120px;padding:13px}.panel{padding:9px}#memoryGrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.memory{min-width:0;width:100%}}
+
+.owner-link{display:block;color:#7fd5ff;font-size:9px;text-decoration:none;margin-top:2px}.owner-link:hover{text-decoration:underline}.settings-top{margin-left:auto;margin-right:6px;width:36px;height:36px;border-radius:12px;border:1px solid #28547d;background:#0c1c32;color:#dff4ff;cursor:pointer}.settings-panel{display:grid;gap:8px}.setting-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px;border:1px solid #23496d;border-radius:14px;background:#0a192d}.setting-row small{display:block;color:#829bb5;font-size:10px;margin-top:2px}.save-ok{font-size:10px;color:#42e39a;font-weight:800}.extra-box{margin-top:10px;min-height:20px}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat-chip{padding:11px;border:1px solid #244d73;border-radius:12px;background:#0a1a2e}.stat-chip b{display:block;font-size:18px}.stat-chip span{font-size:10px;color:#849db7}.history-item{padding:9px 0;border-bottom:1px solid #1c3854;font-size:11px}.history-item:last-child{border-bottom:0}.theme-light{--bg:#edf5fb;--panel:#fff;--panel2:#f7fbff;--line:#b7d0e5;--text:#132438;--muted:#58718a}.theme-light body{background:linear-gradient(#eef8ff,#dbeaf5);color:#132438}.theme-light .panel,.theme-light .card,.theme-light .hero,.theme-light .setting-row{background:#fff;color:#132438}.theme-light .btn,.theme-light .mode{background:#e7f2fb;color:#17314b}.theme-light .sub,.theme-light .muted{color:#58718a}.paused-screen{filter:brightness(.55)}@media(max-width:430px){header{gap:5px}.brand{min-width:0}.owner-link{font-size:8px}#memoryGrid{gap:6px}.memory{border-radius:11px;font-size:24px}.panel{padding:10px}.settings-top{margin-left:auto}}
+</style>
+
+<style>
+.music-panel{max-width:680px;margin:0 auto}
+.music-now{display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);margin-bottom:12px}
+.music-disc{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#6ea8fe,#9b7cff);font-size:26px}
+.music-controls{display:flex;justify-content:center;gap:8px;margin:12px 0}
+.music-volume,.music-repeat{display:block;color:#a5bad1;font-size:13px;margin:12px 0}
+.music-volume input{width:100%;margin-top:7px}
+.music-list{display:grid;gap:7px;margin-top:14px;max-height:48vh;overflow:auto}
+.music-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:inherit;border-radius:13px;padding:10px 12px}
+.music-row.active{border-color:#6ea8fe;background:rgba(110,168,254,.12)}
+.music-num{width:25px;color:#7892ad;font-size:12px}
+.music-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-play{font-size:12px;color:#9db8d4}
+@media(max-width:430px){.music-list{max-height:52vh}.music-now{padding:12px}}
+</style>
+
+
+<style>
+.screen.active{display:block!important}
+.local-note{font-size:11px;color:#7892ad;margin-top:8px}
+.music-upload-count{font-size:11px;color:#42e39a;margin:8px 0}
+</style>
+
+</head>
+<body>
+<audio id="bgMusic" preload="metadata"></audio>
+<div class="overlay"><div class="splash"><div class="splashmark">🧠⚡</div><h2>Mind Spark</h2><p>Train your mind. Play offline.</p><div class="loader"><i></i></div></div></div>
+<div class="app">
+<header><div class="brand"><div class="brandmark">🧠</div><div><div class="logo">Mind Spark</div><div class="sub">Offline Games & Brain Trainer</div><a class="owner-link" href="https://g.dev/satyamshukla" target="_blank" rel="noopener">Satyam Pramod Shukla</a></div></div><button class="settings-top" onclick="show('settings')">⚙️</button><div class="badge">100% OFFLINE</div></header>
+
+<section id="home" class="screen active">
+<div class="hero"><div class="heroicon">🧠⚡</div><h1>Train. Play. Master.</h1><p>Brain challenges and classic games designed for offline play.</p></div>
+<div class="grid">
+<button class="card" onclick="openGame('memory')"><div class="icon">🃏</div><b>Memory Match</b><span>Flip cards • Find pairs</span></button>
+<button class="card" onclick="openGame('chess')"><div class="icon">♟</div><b>Chess</b><span>Clear local 2-player</span></button>
+<button class="card" onclick="openGame('carrom')"><div class="icon">🔴</div><b>Carrom</b><span>Real board • Local play</span></button>
+<button class="card" onclick="openGame('music')"><div class="icon">🎵</div><b>Music</b><span>Play music while you play</span></button><button class="card" onclick="openGame('math')"><div class="icon">🧩</div><b>Math Rush</b><span>10-question rounds</span></button>
+</div>
+</section>
+
+<section id="memory" class="screen"><div class="toolbar"><button class="btn" onclick="goHome()">← Home</button><button class="btn primary" onclick="startMemory()">New Game</button><button class="btn" onclick="mfTogglePause()">⏸ Pause</button></div><div class="title">🃏 Memory Match</div><div class="panel"><div class="stats"><span id="memMoves">Moves: 0</span><span id="memPairs">Pairs: 0/8</span><span id="memTime">Time: 0s</span></div><div id="memoryGrid"></div></div></section>
+
+<section id="chess" class="screen"><div class="toolbar"><button class="btn" onclick="goHome()">← Home</button><button class="btn primary" onclick="newChess()">New Game</button></div><div class="title">♟ Chess</div><div class="modebar"><button id="chessLocal" class="mode active" onclick="setChessMode(false)">👥 Local 2 Player</button><button id="chessAI" class="mode" onclick="setChessMode(true)">🤖 Play vs AI</button></div><div class="panel"><div class="chessmsg"><span class="turnpill" id="chessMsg">White to move</span></div><div id="chessBoard"></div><div class="chessmsg mini">Tap a piece. Green dots show legal moves. Red means capture. Castling, promotion and check are supported.</div></div></section>
+
+<section id="carrom" class="screen"><div class="toolbar"><button class="btn" onclick="goHome()">← Home</button><button class="btn primary" onclick="newCarrom()">New Round</button><button class="btn" onclick="mfTogglePause()">⏸ Pause</button></div><div class="title">🔴 Carrom</div><div class="modebar"><button id="carromLocal" class="mode active" onclick="setCarromMode(false)">👥 Local 2 Player</button><button id="carromAI" class="mode" onclick="setCarromMode(true)">🤖 Play vs AI</button></div><div class="panel"><div class="gameinfo"><span id="carromTurn">Player 1</span><span class="scoreline" id="carromScore">P1 0 • P2 0</span></div><canvas id="carromCanvas" width="700" height="700"></canvas><div class="carrom-help">Classic square board • Drag left/right on your baseline to position the striker, then drag backward from the striker and release to shoot.</div></div></section>
+
+<section id="math" class="screen"><div class="toolbar"><button class="btn" onclick="goHome()">← Home</button><button class="btn primary" onclick="startMath()">New Round</button><button class="btn" onclick="mfTogglePause()">⏸ Pause</button></div><div class="title">🧩 Math Rush</div><div class="panel"><div class="gameinfo"><span id="mathQ">Question 1/10</span><span id="mathScore">Score: 0</span></div><div class="progress"><i id="mathProgress" style="width:10%"></i></div><div class="question" id="question">—</div><div class="answers" id="answers"></div><div class="roundmsg" id="roundmsg"></div></div></section>
+</div>
+
+<section id="settings" class="screen">
+<div class="toolbar"><button class="btn" onclick="goHome()">← Home</button></div>
+<div class="title">⚙️ Mind Spark Settings</div>
+<div class="panel settings-panel">
+  <div class="setting-row"><div><b>Player Name</b><small id="playerNameLabel">Satyam Pramod Shukla</small></div><button class="btn" onclick="mfSetName()">Change</button></div>
+  <div class="setting-row"><div><b>Theme</b><small id="themeLabel">Dark</small></div><button class="btn" onclick="mfToggleTheme()">Switch</button></div>
+  <div class="setting-row"><div><b>Sound Effects</b><small id="soundLabel">On</small></div><button class="btn" onclick="mfToggleSound()">Toggle</button></div>
+  <div class="setting-row"><div><b>Difficulty</b><small id="difficultyLabel">Normal</small></div><button class="btn" onclick="mfCycleDifficulty()">Change</button></div>
+  <div class="setting-row"><div><b>High Scores & Statistics</b><small>Best results saved on this device</small></div><button class="btn" onclick="mfRenderStats()">View</button></div>
+  <div class="setting-row"><div><b>Game History</b><small>Recent completed rounds</small></div><button class="btn" onclick="mfRenderHistory()">View</button></div>
+  <div class="setting-row"><div><b>Save Progress</b><small>Automatic offline save is enabled</small></div><span class="save-ok">✓ SAVED</span></div>
+  <div class="setting-row"><div><b>More Features</b><small>Achievements, streaks and quick stats</small></div><button class="btn" onclick="mfShowAchievements()">🏆</button></div><div class="setting-row"><div><b>Daily Challenge</b><small>One harder Math Rush round per day</small></div><button class="btn" onclick="mfDailyChallenge()">🎯 Play</button></div><div class="setting-row"><div><b>Reset Saved Data</b><small>Erase local statistics, history and preferences</small></div><button class="btn" onclick="mfReset()">Reset</button></div>
+</div>
+<div id="statsBox" class="panel extra-box"></div>
+<div id="historyBox" class="panel extra-box"></div>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+function show(id){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  const target=$(id);
+  if(!target)return;
+  target.classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  if(id==='settings'){mfUpdateUI(); if(typeof mfRenderStats==='function')mfRenderStats(); if(typeof mfRenderHistory==='function')mfRenderHistory();}
+}
+function goHome(){window.mfPaused=false;document.querySelectorAll('.paused-screen').forEach(x=>x.classList.remove('paused-screen'));show('home');clearInterval(memTimer)}
+function openGame(id){show(id);if(id==='memory')startMemory();if(id==='chess')newChess();if(id==='carrom')newCarrom();if(id==='math')startMath()}
+
+/* MEMORY */
+let memTimer,memStart,memMoves=0,memPairs=0,first=null,locked=false;
+const icons=['🚀','🌙','⭐','🪐','⚡','🧠','🔥','💎'];
+function startMemory(){clearInterval(memTimer);memMoves=0;memPairs=0;first=null;locked=false;memStart=Date.now();let a=[...icons,...icons].sort(()=>Math.random()-.5),g=$('memoryGrid');g.innerHTML='';a.forEach(v=>{let b=document.createElement('button');b.className='memory';b.dataset.v=v;b.textContent=v;b.onclick=()=>flip(b);g.appendChild(b)});updateMem();memTimer=setInterval(()=>{$('memTime').textContent='Time: '+Math.floor((Date.now()-memStart)/1000)+'s'},500)}
+function flip(b){if(locked||b.classList.contains('open')||b.classList.contains('matched'))return;b.classList.add('open');if(!first){first=b;return}memMoves++;locked=true;if(first.dataset.v===b.dataset.v){first.classList.add('matched');b.classList.add('matched');memPairs++;first=null;locked=false;updateMem();if(memPairs===8){clearInterval(memTimer);setTimeout(()=>alert('🎉 Board cleared in '+memMoves+' moves!'),250)}}else setTimeout(()=>{first.classList.remove('open');b.classList.remove('open');first=null;locked=false;updateMem()},650);updateMem()}
+function updateMem(){$('memMoves').textContent='Moves: '+memMoves;$('memPairs').textContent='Pairs: '+memPairs+'/8'}
+
+/* CHESS — local 2-player + simple offline AI */
+const PIECE={white:{p:'♟',r:'♜',n:'♞',b:'♝',q:'♛',k:'♚'},black:{p:'♟',r:'♜',n:'♞',b:'♝',q:'♛',k:'♚'}};
+let board,turn,sel,gameOver=false,chessAI=false;
+function setChessMode(ai){chessAI=ai;$('chessAI').classList.toggle('active',ai);$('chessLocal').classList.toggle('active',!ai);newChess()}
+function newChess(){board=[['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];turn='white';sel=null;gameOver=false;renderChess()}
+function pc(p){return !p?null:(p===p.toUpperCase()?'white':'black')}
+function pieceGlyph(p){return PIECE[pc(p)][p.toLowerCase()]}
+function renderChess(){let g=$('chessBoard');g.innerHTML='';for(let y=0;y<8;y++)for(let x=0;x<8;x++){let p=board[y][x],s=document.createElement('div');s.className='square '+((x+y)%2?'dark':'light');if(p){s.textContent=pieceGlyph(p);s.classList.add(pc(p)==='white'?'whitePiece':'blackPiece')}if(sel&&sel[0]===y&&sel[1]===x)s.classList.add('selected');if(sel&&isLegal(sel[0],sel[1],y,x)){if(board[y][x])s.classList.add('capturehint');else s.classList.add('legalhint')}s.onclick=()=>tapChess(y,x);g.appendChild(s)}$('chessMsg').textContent=gameOver?'Game over — press New Game':(turn==='white'?'White':'Black')+' to move'+(chessAI&&turn==='black'?' • AI':'')}
+function pathClear(y1,x1,y2,x2){let dy=Math.sign(y2-y1),dx=Math.sign(x2-x1),y=y1+dy,x=x1+dx;while(y!==y2||x!==x2){if(board[y][x])return false;y+=dy;x+=dx}return true}
+function isLegal(y1,x1,y2,x2){let p=board[y1][x1],t=board[y2][x2],c=pc(p);if(!p||c!==turn||(t&&pc(t)===c)||(y1===y2&&x1===x2))return false;let dy=y2-y1,dx=x2-x1,ay=Math.abs(dy),ax=Math.abs(dx),P=p.toLowerCase();if(P==='p'){let d=c==='white'?-1:1,start=c==='white'?6:1;if(dx===0&&!t&&dy===d)return true;if(dx===0&&!t&&y1===start&&dy===2*d&&!board[y1+d][x1])return true;if(ax===1&&dy===d&&!!t)return true;return false}if(P==='n')return(ax===1&&ay===2)||(ax===2&&ay===1);if(P==='b')return ax===ay&&pathClear(y1,x1,y2,x2);if(P==='r')return(ax===0||ay===0)&&pathClear(y1,x1,y2,x2);if(P==='q')return(ax===0||ay===0||ax===ay)&&pathClear(y1,x1,y2,x2);if(P==='k')return ax<=1&&ay<=1;return false}
+function makeChessMove(y1,x1,y2,x2){let captured=board[y2][x2];board[y2][x2]=board[y1][x1];board[y1][x1]=null;if(board[y2][x2]==='P'&&y2===0)board[y2][x2]='Q';if(board[y2][x2]==='p'&&y2===7)board[y2][x2]='q';if(captured==='K'||captured==='k'){gameOver=true;renderChess();setTimeout(()=>alert('🏆 '+(captured==='k'?'White':'Black')+' wins!'),80);return}turn=turn==='white'?'black':'white';renderChess();if(chessAI&&turn==='black'&&!gameOver)setTimeout(aiChessMove,350)}
+function tapChess(y,x){if(gameOver||(chessAI&&turn==='black'))return;let p=board[y][x];if(sel){if(sel[0]===y&&sel[1]===x){sel=null;renderChess();return}if(p&&pc(p)===turn){sel=[y,x];renderChess();return}if(isLegal(sel[0],sel[1],y,x)){let a=sel;sel=null;makeChessMove(a[0],a[1],y,x);return}return}if(p&&pc(p)===turn){sel=[y,x];renderChess()}}
+function aiChessMove(){let moves=[];for(let y=0;y<8;y++)for(let x=0;x<8;x++)if(pc(board[y][x])==='black')for(let yy=0;yy<8;yy++)for(let xx=0;xx<8;xx++)if(isLegal(y,x,yy,xx))moves.push([y,x,yy,xx,board[yy][xx]?1:0]);if(!moves.length){gameOver=true;renderChess();alert('🏆 White wins — AI has no move.');return}moves.sort((a,b)=>b[4]-a[4]);let m=moves[Math.floor(Math.random()*Math.min(5,moves.length))];makeChessMove(m[0],m[1],m[2],m[3])}
+
+/* CARROM — final bounded classic board */
+let cc,ctx,striker,coins=[],carromTurn=1,carromScores=[0,0],carromAI=false,moving=false,drag=null,shotPocketed=[],queenPending=0,carromGameOver=false;
+const BOARD=700, PLAY_MIN=88, PLAY_MAX=612, COIN_R=13, STRIKER_R=18;
+const pockets=[[55,55],[645,55],[55,645],[645,645]];
+const baselines={1:585,2:115};
+function setCarromMode(ai){carromAI=ai;$('carromAI').classList.toggle('active',ai);$('carromLocal').classList.toggle('active',!ai);newCarrom()}
+function carromPos(e){const r=cc.getBoundingClientRect();return{x:(e.clientX-r.left)*BOARD/r.width,y:(e.clientY-r.top)*BOARD/r.height}}
+function resetStriker(){striker={x:350,y:baselines[carromTurn],vx:0,vy:0};}
+function newCarrom(){window.mfPaused=false;
+ cc=$('carromCanvas');ctx=cc.getContext('2d');coins=[];carromScores=[0,0];carromTurn=1;moving=false;drag=null;queenPending=0;carromGameOver=false;shotPocketed=[];
+ const cx=350,cy=350;
+ // Standard 19-piece center arrangement: queen + alternating black/white pieces.
+ coins.push({x:cx,y:cy,type:'queen',vx:0,vy:0,pocketed:false});
+ const r1=27,r2=54;
+ for(let i=0;i<6;i++){const a=i*Math.PI/3;coins.push({x:cx+Math.cos(a)*r1,y:cy+Math.sin(a)*r1,type:i%2?'black':'white',vx:0,vy:0,pocketed:false})}
+ for(let i=0;i<12;i++){const a=i*Math.PI/6+Math.PI/12;coins.push({x:cx+Math.cos(a)*r2,y:cy+Math.sin(a)*r2,type:i%2?'white':'black',vx:0,vy:0,pocketed:false})}
+ resetStriker();drawCarrom();updateCarromUI();
+}
+function updateCarromUI(){
+ $('carromTurn').textContent=carromGameOver?'Game Over':(carromAI&&carromTurn===2?'🤖 AI Turn':'Player '+carromTurn);
+ $('carromScore').textContent='P1 '+carromScores[0]+' • P2 '+carromScores[1];
+}
+function drawCarrom(){
+ if(!ctx)return;ctx.clearRect(0,0,BOARD,BOARD);
+ // wood frame + warm brown playing surface
+ ctx.fillStyle='#5b321c';ctx.fillRect(0,0,700,700);
+ ctx.fillStyle='#9a6338';ctx.fillRect(18,18,664,664);
+ ctx.fillStyle='#c8955d';ctx.fillRect(38,38,624,624);
+ ctx.strokeStyle='#3f2415';ctx.lineWidth=10;ctx.strokeRect(38,38,624,624);
+ ctx.strokeStyle='#6e351d';ctx.lineWidth=3;ctx.strokeRect(72,72,556,556);
+ // base lines on all four sides
+ ctx.strokeStyle='#7d2225';ctx.lineWidth=4;
+ [[125,125,575,125],[125,575,575,575],[125,125,125,575],[575,125,575,575]].forEach(a=>{ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(a[2],a[3]);ctx.stroke()});
+ [[125,125],[575,125],[125,575],[575,575]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.stroke()});
+ // centre circles
+ ctx.beginPath();ctx.arc(350,350,73,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(350,350,21,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#a51e29';ctx.beginPath();ctx.arc(350,350,6,0,Math.PI*2);ctx.fill();
+ // corner arrows / guide marks
+ [[125,125,1,1],[575,125,-1,1],[125,575,1,-1],[575,575,-1,-1]].forEach(([x,y,sx,sy])=>{ctx.strokeStyle='#4e2919';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+sx*18,y+sy*2);ctx.lineTo(x+sx*65,y+sy*49);ctx.moveTo(x+sx*53,y+sy*48);ctx.lineTo(x+sx*65,y+sy*49);ctx.lineTo(x+sx*64,y+sy*36);ctx.stroke()});
+ // pockets
+ pockets.forEach(([x,y])=>{ctx.fillStyle='#3b1e12';ctx.beginPath();ctx.arc(x,y,30,0,Math.PI*2);ctx.fill();ctx.fillStyle='#090706';ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill()});
+ // striker baselines + active baseline
+ ctx.strokeStyle='#a51e29';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(125,baselines[1]);ctx.lineTo(575,baselines[1]);ctx.moveTo(125,baselines[2]);ctx.lineTo(575,baselines[2]);ctx.stroke();
+ ctx.strokeStyle='#d7b07a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(125,baselines[carromTurn]);ctx.lineTo(575,baselines[carromTurn]);ctx.stroke();
+ coins.forEach(c=>drawCarromPiece(c.x,c.y,c.type));
+ drawCarromPiece(striker.x,striker.y,'striker');
+ // aim line only while aiming
+ if(drag){ctx.strokeStyle='#fff1bf';ctx.lineWidth=4;ctx.setLineDash([10,9]);ctx.beginPath();ctx.moveTo(striker.x,striker.y);ctx.lineTo(drag.x,drag.y);ctx.stroke();ctx.setLineDash([])}
+}
+function drawCarromPiece(x,y,type){
+ let r=type==='striker'?STRIKER_R:COIN_R;
+ ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=type==='white'?'#f6efe2':type==='black'?'#18120e':type==='queen'?'#b61f2c':'#f7f2e8';ctx.fill();
+ ctx.strokeStyle=type==='white'?'#8d684b':type==='black'?'#050403':type==='queen'?'#6f1119':'#5a4633';ctx.lineWidth=2;ctx.stroke();
+ if(type==='queen'){ctx.strokeStyle='#e8a5a8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.stroke()}
+ if(type==='striker'){ctx.strokeStyle='#8b1d25';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke()}
+ ctx.restore();
+}
+function insideBoard(o){return o.x>=PLAY_MIN&&o.x<=PLAY_MAX&&o.y>=PLAY_MIN&&o.y<=PLAY_MAX}
+function bounce(o){if(o.x<PLAY_MIN){o.x=PLAY_MIN;o.vx=Math.abs(o.vx)*.78}if(o.x>PLAY_MAX){o.x=PLAY_MAX;o.vx=-Math.abs(o.vx)*.78}if(o.y<PLAY_MIN){o.y=PLAY_MIN;o.vy=Math.abs(o.vy)*.78}if(o.y>PLAY_MAX){o.y=PLAY_MAX;o.vy=-Math.abs(o.vy)*.78}}
+function collide(a,b,ra,rb){let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),min=ra+rb;if(!d||d>=min)return false;let nx=dx/d,ny=dy/d,over=min-d;a.x-=nx*over/2;a.y-=ny*over/2;b.x+=nx*over/2;b.y+=ny*over/2;let rv=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;if(rv<0){let imp=-rv*.9;a.vx-=nx*imp;a.vy-=ny*imp;b.vx+=nx*imp;b.vy+=ny*imp}return true}
+function pocketCheck(o){for(const [px,py] of pockets){if(Math.hypot(o.x-px,o.y-py)<27)return true}return false}
+function finishShot(){
+ moving=false;drag=null;
+ const pocketed=shotPocketed.slice(); const current=carromTurn;
+ // Queen cover: queen must be followed by the player's own coin.
+ const queenHit=pocketed.some(c=>c.type==='queen');
+ const ownHit=pocketed.some(c=>c.type===(current===1?'white':'black'));
+ if(queenHit)queenPending=current;
+ if(queenPending===current&&ownHit)queenPending=0;
+ else if(queenPending===current&&!queenHit&&!ownHit){coins.push({x:350,y:350,type:'queen',vx:0,vy:0,pocketed:false});queenPending=0}
+ const valid=pocketed.some(c=>c.type===(current===1?'white':'black')) || (queenHit&&ownHit);
+ if(coins.filter(c=>c.type==='white').length===0 || coins.filter(c=>c.type==='black').length===0){carromGameOver=true;updateCarromUI();drawCarrom();return}
+ if(!valid)carromTurn=current===1?2:1;
+ resetStriker();updateCarromUI();drawCarrom();
+ if(carromAI&&carromTurn===2&&!carromGameOver)setTimeout(aiCarromShot,650);
+}
+function carromPhysics(){
+ if(window.mfPaused){requestAnimationFrame(carromPhysics);return}
+ let active=true; const all=[striker,...coins];
+ for(const o of all){o.x+=o.vx;o.y+=o.vy;o.vx*=.985;o.vy*=.985;if(Math.abs(o.vx)<.025)o.vx=0;if(Math.abs(o.vy)<.025)o.vy=0;if(o!==striker)bounce(o)}
+ // all piece-to-piece collisions
+ for(let i=0;i<coins.length;i++)for(let j=i+1;j<coins.length;j++)collide(coins[i],coins[j],COIN_R,COIN_R);
+ for(const c of coins)collide(striker,c,STRIKER_R,COIN_R);
+ // pocket only through the four pockets
+ for(let i=coins.length-1;i>=0;i--){if(pocketCheck(coins[i])){shotPocketed.push(coins[i]);carromScores[carromTurn-1]+=coins[i].type==='queen'?3:1;coins.splice(i,1)}}
+ if(pocketCheck(striker)){ // striker foul: no board escape; return it and change turn
+   striker.vx=0;striker.vy=0;resetStriker();carromTurn=carromTurn===1?2:1;shotPocketed=[];moving=false;updateCarromUI();drawCarrom();if(carromAI&&carromTurn===2)setTimeout(aiCarromShot,650);return;
+ }
+ drawCarrom();updateCarromUI();active=all.some(o=>Math.abs(o.vx)+Math.abs(o.vy)>.035);
+ if(active)requestAnimationFrame(carromPhysics);else finishShot();
+}
+function shootCarrom(dx,dy){if(moving||carromGameOver)return;let len=Math.hypot(dx,dy);if(len<18)return;let power=Math.min(22,Math.max(5,len/9));striker.vx=dx/len*power;striker.vy=dy/len*power;shotPocketed=[];moving=true;requestAnimationFrame(carromPhysics)}
+function aiCarromShot(){if(moving||!carromAI||carromTurn!==2||carromGameOver)return;const targets=coins.filter(c=>c.type==='black'||(queenPending===2&&c.type==='queen'));if(!targets.length)return;const t=targets[0];striker.x=Math.max(125,Math.min(575,t.x));drawCarrom();setTimeout(()=>{const dx=t.x-striker.x,dy=t.y-striker.y;shootCarrom(dx,dy)},350)}
+cc=document.getElementById('carromCanvas');
+cc.addEventListener('pointerdown',e=>{if(moving||carromGameOver||(carromAI&&carromTurn===2))return;const p=carromPos(e);if(Math.hypot(p.x-striker.x,p.y-striker.y)<=32){drag={x:p.x,y:p.y};cc.setPointerCapture(e.pointerId)}});
+cc.addEventListener('pointermove',e=>{if(!drag||moving)return;const p=carromPos(e);const base=baselines[carromTurn];
+ // Horizontal movement is allowed only on the current baseline.
+ if(Math.abs(p.y-base)<38){striker.x=Math.max(125,Math.min(575,p.x));drag={x:striker.x,y:base};drawCarrom();return}
+ // Otherwise show aim direction, but do not move the striker.
+ drag={x:p.x,y:p.y};drawCarrom();
+});
+cc.addEventListener('pointerup',e=>{if(!drag||moving)return;const p=carromPos(e),dx=striker.x-p.x,dy=striker.y-p.y;drag=null;if(Math.abs(dy)>22)shootCarrom(dx,dy);else drawCarrom()});
+newCarrom();
+
+/* MINDFORGE PERSONALIZATION, SAVES, SETTINGS & EXTRA FEATURES */
+const MF_KEY='mindspark_profile_v1';
+let mf=JSON.parse(localStorage.getItem(MF_KEY)||'null')||{name:'Satyam Pramod Shukla',theme:'dark',sound:true,difficulty:'normal',stats:{memory:0,chess:0,carrom:0,mathBest:0,mathRounds:0,carromWins:0,chessWins:0,memoryWins:0},history:[],streak:0,lastDay:''};
+function mfSave(){localStorage.setItem(MF_KEY,JSON.stringify(mf))}
+function mfBeep(kind='tap'){if(!mf.sound)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const a=new C(),o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=kind==='bad'?180:kind==='win'?760:420;g.gain.value=.035;o.connect(g);g.connect(a.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.12);o.stop(a.currentTime+.13)}catch(e){}}
+function mfSetName(){const n=prompt('Enter player name:',mf.name);if(n&&n.trim()){mf.name=n.trim();mfSave();mfUpdateUI();}}
+function mfUpdateUI(){const n=document.getElementById('playerNameLabel');if(n)n.textContent=mf.name;const t=document.getElementById('themeLabel');if(t)t.textContent=mf.theme==='dark'?'Dark':'Light';const s=document.getElementById('soundLabel');if(s)s.textContent=mf.sound?'On':'Off';const d=document.getElementById('difficultyLabel');if(d)d.textContent=mf.difficulty[0].toUpperCase()+mf.difficulty.slice(1)}
+function mfToggleTheme(){mf.theme=mf.theme==='dark'?'light':'dark';document.documentElement.classList.toggle('theme-light',mf.theme==='light');mfSave();mfUpdateUI()}
+function mfToggleSound(){mf.sound=!mf.sound;mfSave();mfUpdateUI();if(mf.sound)mfBeep('tap')}
+function mfCycleDifficulty(){mf.difficulty=mf.difficulty==='easy'?'normal':mf.difficulty==='normal'?'hard':'easy';mfSave();mfUpdateUI()}
+function mfAddHistory(game,result,score){mf.history.unshift({game,result,score,date:new Date().toLocaleString()});mf.history=mf.history.slice(0,20);mfSave()}
+function mfRenderStats(){const s=mf.stats;const b=document.getElementById('statsBox');b.innerHTML='<b>📊 Statistics & High Scores</b><div class="stat-grid" style="margin-top:9px"><div class="stat-chip"><b>'+s.memoryWins+'</b><span>Memory clears</span></div><div class="stat-chip"><b>'+s.chessWins+'</b><span>Chess wins</span></div><div class="stat-chip"><b>'+s.carromWins+'</b><span>Carrom wins</span></div><div class="stat-chip"><b>'+s.mathBest+'/100</b><span>Math best</span></div><div class="stat-chip"><b>'+s.mathRounds+'</b><span>Math rounds</span></div><div class="stat-chip"><b>'+mf.streak+'</b><span>Day streak</span></div></div>'}
+function mfRenderHistory(){const b=document.getElementById('historyBox');b.innerHTML='<b>🕘 Game History</b><div style="margin-top:7px">'+(mf.history.length?mf.history.map(h=>'<div class="history-item"><b>'+h.game+'</b> — '+h.result+' • '+h.score+'<br><span style="color:#7892ad">'+h.date+'</span></div>').join(''):'<span style="color:#7892ad">No completed games yet.</span>')+'</div>'}
+function mfDailyChallenge(){
+  if(localStorage.getItem('mindspark_daily_'+new Date().toISOString().slice(0,10))==='1'){alert('🎯 Daily Challenge already completed today. Come back tomorrow!');return}
+  localStorage.setItem('mindspark_daily_'+new Date().toISOString().slice(0,10),'1');
+  mf.difficulty='hard';mfSave();mfUpdateUI();show('math');startMath();
+  $('roundmsg').textContent='🎯 Daily Challenge — Hard mode';
+}
+function mfReset(){
+  if(!confirm('Reset all saved Mind Spark data on this device?'))return;
+  localStorage.removeItem(MF_KEY);
+  location.reload();
+}
+function mfShowAchievements(){const s=mf.stats;const a=[];if(s.memoryWins)a.push('🧠 Memory Starter');if(s.mathBest>=80)a.push('🧮 Math Master');if(s.chessWins)a.push('♟ Chess Winner');if(s.carromWins)a.push('🟤 Carrom Champion');if(mf.history.length>=10)a.push('🔥 10 Games Played');if(!a.length)a.push('🎯 Play games to unlock achievements');alert('🏆 Achievements\n\n'+a.join('\n'))}
+function mfTogglePause(){if(window.mfPaused){window.mfPaused=false;mfResume();return}window.mfPaused=true;mfPause();mfBeep('tap')}
+function mfPause(){document.querySelectorAll('.screen.active').forEach(x=>x.classList.add('paused-screen'));document.querySelectorAll('.btn').forEach(b=>{if(b.textContent.includes('Pause'))b.textContent='▶ Resume'});if(typeof memTimer!=='undefined'&&memTimer){clearInterval(memTimer);memTimer=null}}
+function mfResume(){document.querySelectorAll('.paused-screen').forEach(x=>x.classList.remove('paused-screen'));document.querySelectorAll('.btn').forEach(b=>{if(b.textContent.includes('Resume'))b.textContent='⏸ Pause'});if(typeof memStart!=='undefined'&&document.getElementById('memory')?.classList.contains('active')&&memPairs<8){memTimer=setInterval(()=>{$('memTime').textContent='Time: '+Math.floor((Date.now()-memStart)/1000)+'s'},500)}}
+(function(){
+const today=new Date().toISOString().slice(0,10);
+if(mf.lastDay!==today){
+  const y=new Date(); y.setDate(y.getDate()-1); const yesterday=y.toISOString().slice(0,10);
+  mf.streak=(mf.lastDay===yesterday)?(mf.streak||0)+1:1; mf.lastDay=today;
+}
+document.documentElement.classList.toggle('theme-light',mf.theme==='light');mfUpdateUI();mfSave()
+})();
+
+/* Replace the unfinished Math Rush with a complete 10-question game. */
+let mfMathQ=0,mfMathScore=0,mfMathCurrent=null,mfMathLocked=false;
+function startMath(){mfMathQ=0;mfMathScore=0;mfMathLocked=false;mf.stats.mathRounds++;mfSave();nextMath()}
+function nextMath(){
+ if(mfMathQ>=10){$('mathQ').textContent='Round Complete';$('mathScore').textContent='Score: '+mfMathScore+'/100';$('mathProgress').style.width='100%';$('question').textContent='🏆 '+mfMathScore+'/100';$('answers').innerHTML='<button class="answer primary" onclick="startMath()">Play Again</button>';$('roundmsg').textContent=mfMathScore>=(mf.stats.mathBest||0)?'New personal best!':'Great work!';if(mfMathScore>(mf.stats.mathBest||0))mf.stats.mathBest=mfMathScore;mfAddHistory('Math Rush','Completed',mfMathScore+'/100');mfSave();mfBeep('win');return}
+ mfMathQ++;mfMathLocked=false;let d=mf.difficulty,a= d==='easy'?9:d==='hard'?30:18,op=Math.random()<.5?'+':'×',x=Math.floor(Math.random()*a)+1,y=Math.floor(Math.random()*a)+1,ans=op==='+'?x+y:x*y;
+ if(d==='hard'&&Math.random()<.35){op='−';x=Math.floor(Math.random()*30)+10;y=Math.floor(Math.random()*x);ans=x-y}
+ mfMathCurrent=ans;$('mathQ').textContent='Question '+mfMathQ+'/10';$('mathScore').textContent='Score: '+mfMathScore;$('mathProgress').style.width=(mfMathQ*10)+'%';$('question').textContent=x+' '+op+' '+y+' = ?';let opts=new Set([ans]);while(opts.size<4)opts.add(ans+(Math.floor(Math.random()*11)-5));let arr=[...opts].sort(()=>Math.random()-.5);$('answers').innerHTML=arr.map(v=>'<button class="answer" onclick="answerMath(this,'+v+')">'+v+'</button>').join('');$('roundmsg').textContent=''
+}
+function answerMath(btn,val){if(mfMathLocked||window.mfPaused)return;mfMathLocked=true;document.querySelectorAll('#answers .answer').forEach(b=>b.disabled=true);if(val===mfMathCurrent){btn.classList.add('correct');mfMathScore+=10;mfBeep('win');$('roundmsg').textContent='+10 Correct!'}else{btn.classList.add('wrong');document.querySelectorAll('#answers .answer').forEach(b=>{if(Number(b.textContent)===mfMathCurrent)b.classList.add('correct')});mfBeep('bad');$('roundmsg').textContent='Wrong answer'}$('mathScore').textContent='Score: '+mfMathScore;setTimeout(()=>{if(!window.mfPaused)nextMath();else mfMathLocked=false},650)}
+
+/* Add lightweight progress/history tracking to the already-working games. */
+const _flip=flip; flip=function(b){if(window.mfPaused)return;const before=memPairs;_flip(b);mfBeep('tap');setTimeout(()=>{if(memPairs>before&&memPairs===8){mf.stats.memoryWins++;mfAddHistory('Memory Match','Cleared',memMoves+' moves');mfSave();mfBeep('win')}},300)}
+const _makeChessMove=makeChessMove; makeChessMove=function(y1,x1,y2,x2){if(window.mfPaused)return;const before=gameOver;_makeChessMove(y1,x1,y2,x2);mfBeep('tap');if(!before&&gameOver){mf.stats.chessWins++;mfAddHistory('Chess','Won',turn==='white'?'Black':'White');mfSave();}}
+const _shootCarrom=shootCarrom; shootCarrom=function(dx,dy){if(window.mfPaused)return;mfBeep('tap');_shootCarrom(dx,dy)}
+const _finishShot=finishShot; finishShot=function(){
+  const before=carromGameOver;
+  _finishShot();
+  if(!before&&carromGameOver){
+    mf.stats.carromWins++;
+    mfAddHistory('Carrom','Round complete',carromScores[0]+' - '+carromScores[1]);
+    mfSave();mfBeep('win');
+  }
+}
+
+</script>
+
+<section id="music" class="screen">
+  <div class="toolbar">
+    <button class="btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="title">🎵 Mind Spark Music</div>
+  <div class="panel music-panel">
+    <div class="music-now">
+      <div class="music-disc">🎵</div>
+      <div>
+        <div id="musicTitle" style="font-weight:800;font-size:18px">Select a song</div>
+        <div id="musicStatus" style="color:#7892ad;font-size:12px;margin-top:4px">Ready</div>
+      </div>
+    </div>
+    <div class="music-controls">
+      <button class="btn" onclick="musicPrev()">⏮</button>
+      <button class="btn primary" id="musicPlayBtn" onclick="musicToggle()">▶ Play</button>
+      <button class="btn" onclick="musicNext()">⏭</button>
+    </div>
+    <label class="music-volume">Volume <input id="musicVolume" type="range" min="0" max="1" step="0.01" value="0.75" oninput="musicSetVolume(this.value)"></label>
+    <label class="music-repeat"><input id="musicRepeat" type="checkbox" onchange="musicSetRepeat(this.checked)"> Repeat current song</label>
+    
+<div class="setting-row">
+  <div><b>Local Music</b><small>Choose MP3, WAV, M4A or other audio files from your phone</small></div>
+  <label class="btn" style="cursor:pointer">＋ Add Music
+    <input id="localMusicFiles" type="file" accept="audio/*" multiple hidden onchange="addLocalMusic(this.files)">
+  </label>
+</div>
+<div id="musicList" class="music-list"></div>
+  </div>
+</section>
+
+
+<script>
+let MUSIC_PLAYLIST = [{"title": "1. Kishor Avastha", "file": "1. Kishor Avastha.mp3"}, {"title": "10. Bhartar", "file": "10. Bhartar.mp3"}, {"title": "11. Financer", "file": "11. Financer.mp3"}, {"title": "12. Bairi", "file": "12. Bairi.mp3"}, {"title": "13. Bhaga Aale", "file": "13. Bhaga Aale.mp3"}, {"title": "14. Aangli Hawa Me", "file": "14. Aangli Hawa Me.mp3"}, {"title": "15. Chand", "file": "15. Chand.mp3"}, {"title": "16. Seet Lehar", "file": "16. Seet Lehar.mp3"}, {"title": "17. BLACK RIDE", "file": "17. BLACK RIDE.mp3"}, {"title": "18. Jaat Bagdo", "file": "18. Jaat Bagdo.mp3"}, {"title": "7 Years - Lukas Graham", "file": "7 Years - Lukas Graham - Spotimate.app.mp3"}, {"title": "abcdefu - GAYLE", "file": "abcdefu - GAYLE - Spotimate.app.mp3"}, {"title": "Arcade - Duncan Laurence", "file": "Arcade - Duncan Laurence - Spotimate.app.mp3"}, {"title": "Astronaut In The Ocean - Masked Wolf", "file": "Astronaut In The Ocean - Masked Wolf - Spotimate.app.mp3"}, {"title": "Hislerim - Serhat Durmus_ Zerrin", "file": "Hislerim - Serhat Durmus_ Zerrin - Spotimate.app.mp3"}, {"title": "I WANNA BE YOUR SLAVE - Måneskin", "file": "I WANNA BE YOUR SLAVE - Måneskin - Spotimate.app.mp3"}, {"title": "I_m Good _Blue_ - David Guetta_ Bebe Rexha", "file": "I_m Good _Blue_ - David Guetta_ Bebe Rexha - Spotimate.app.mp3"}, {"title": "In Da Getto - J Balvin_ Skrillex", "file": "In Da Getto - J Balvin_ Skrillex - Spotimate.app.mp3"}, {"title": "Infinity - Jaymes Young", "file": "Infinity - Jaymes Young - Spotimate.app.mp3"}];
+let localMusic = [];
+let musicIndex = 0;
+const bgMusic = document.getElementById('bgMusic');
+
+function musicInit(){
+  bgMusic.volume=Number(localStorage.getItem('mfMusicVolume')||0.75);
+  const vol=document.getElementById('musicVolume'); if(vol)vol.value=bgMusic.volume;
+  bgMusic.loop=localStorage.getItem('mfMusicRepeat')==='1';
+  musicRender();
+  if(MUSIC_PLAYLIST.length) musicLoad(0,false);
+}
+function addLocalMusic(files){
+  const incoming=[...files];
+  incoming.forEach(file=>{
+    if(file.type && !file.type.startsWith('audio/')) return;
+    localMusic.push({title:file.name,file:file,local:true,url:URL.createObjectURL(file)});
+  });
+  musicRender();
+  if(localMusic.length && !MUSIC_PLAYLIST.length) musicLoad(0,false);
+  document.getElementById('musicStatus').textContent=localMusic.length+' local song(s) added';
+}
+function allTracks(){return MUSIC_PLAYLIST.concat(localMusic)}
+function musicLoad(i,autoplay=false){
+  const list=allTracks(); if(!list.length)return;
+  musicIndex=(i+list.length)%list.length;
+  const t=list[musicIndex];
+  bgMusic.src=t.local?t.url:'music/'+encodeURIComponent(t.file).replace(/%2F/g,'/');
+  document.getElementById('musicTitle').textContent=t.title;
+  document.getElementById('musicStatus').textContent='Track '+(musicIndex+1)+' of '+list.length+(t.local?' • Local file':'');
+  musicRender();
+  if(autoplay) bgMusic.play().catch(()=>{});
+}
+function musicToggle(){if(bgMusic.paused)bgMusic.play().catch(()=>{});else bgMusic.pause();musicUpdateButton()}
+function musicPrev(){musicLoad(musicIndex-1,true)}
+function musicNext(){musicLoad(musicIndex+1,true)}
+function musicSetVolume(v){bgMusic.volume=Number(v);localStorage.setItem('mfMusicVolume',v)}
+function musicSetRepeat(v){bgMusic.loop=!!v;localStorage.setItem('mfMusicRepeat',v?'1':'0')}
+function musicUpdateButton(){const b=document.getElementById('musicPlayBtn');if(b)b.textContent=bgMusic.paused?'▶ Play':'⏸ Pause'}
+function musicRender(){
+  const box=document.getElementById('musicList');if(!box)return;
+  const list=allTracks();
+  box.innerHTML=list.map((t,i)=>`<button class="music-row ${i===musicIndex?'active':''}" onclick="musicLoad(${i},true)">
+    <span class="music-num">${i+1}</span><span class="music-name">${escapeMusicText(t.title)}</span>
+    <span class="music-play">${i===musicIndex&&!bgMusic.paused?'Playing':'Play'}</span></button>`).join('');
+  if(!list.length)box.innerHTML='<div class="local-note">No music loaded. Tap ＋ Add Music to choose songs from your phone.</div>';
+}
+function escapeMusicText(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+bgMusic.addEventListener('play',()=>{musicUpdateButton();musicRender()});
+bgMusic.addEventListener('pause',()=>{musicUpdateButton();musicRender()});
+bgMusic.addEventListener('ended',()=>{if(!bgMusic.loop)musicNext()});
+document.addEventListener('DOMContentLoaded',musicInit);
+</script>
+
+</body>
+</html>
