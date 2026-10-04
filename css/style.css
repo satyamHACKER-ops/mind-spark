@@ -1,1 +1,10 @@
-
+*{box-sizing:border-box}:root{color-scheme:dark;--bg:#050914;--line:#1d3150;--blue:#35bfff;--cyan:#6ee7ff;--text:#f4f8ff;--muted:#91a6bf}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -10%,#123d70,#081426 34%,var(--bg) 70%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+body{min-height:100svh}.app-shell{width:min(760px,100%);margin:auto;padding:28px 18px 30px}.hero{text-align:center;padding:12px 0 22px}
+.brand-icon{width:116px;height:116px;margin:0 auto 14px;border-radius:28px;overflow:hidden;box-shadow:0 0 34px #168dff66,0 16px 35px #0009}.brand-icon img{width:100%;height:100%;display:block}
+.eyebrow{margin:0;color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:4px}h1{font-size:42px;line-height:1;margin:9px 0 8px;letter-spacing:-1.5px}h1 span{color:var(--cyan)}
+.tagline{margin:0;font-size:16px;color:#c9d8eb}.status{margin:10px 0 0;color:var(--muted);font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0 18px}.feature{min-height:92px;padding:17px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#111e33,#0a1221);box-shadow:0 12px 28px #0004}
+.feature b{display:block;font-size:17px;margin-bottom:7px}.feature span{color:var(--muted);font-size:13px}.feature:last-child{grid-column:1/-1}
+.start-btn{width:100%;border:0;border-radius:18px;padding:17px;background:linear-gradient(100deg,#147dff,#16c8ff);color:white;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 12px 28px #078cff44}.footer{text-align:center;color:#5f7692;font-size:11px;margin-top:18px}
+@media(max-width:430px){.app-shell{padding:22px 14px 26px}.brand-icon{width:100px;height:100px}h1{font-size:36px}.cards{gap:9px}.feature{min-height:86px;padding:14px}}
