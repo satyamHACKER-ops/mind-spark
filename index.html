@@ -401,7 +401,7 @@ function musicLoad(i,autoplay=false){
   musicRender();
   if(autoplay) bgMusic.play().catch(()=>{});
 }
-function musicToggle(){if(bgMusic.paused)bgMusic.play().catch(()=>{});else bgMusic.pause();musicUpdateButton()}
+function musicToggle(){if(bgMusic.paused)bgMusic.play().catch(e=>{document.getElementById('musicStatus').textContent='Error: '+e.message;});else bgMusic.pause();musicUpdateButton()}
 function musicPrev(){musicLoad(musicIndex-1,true)}
 function musicNext(){musicLoad(musicIndex+1,true)}
 function musicSetVolume(v){bgMusic.volume=Number(v);localStorage.setItem('mfMusicVolume',v)}
@@ -419,6 +419,7 @@ function escapeMusicText(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;'
 bgMusic.addEventListener('play',()=>{musicUpdateButton();musicRender()});
 bgMusic.addEventListener('pause',()=>{musicUpdateButton();musicRender()});
 bgMusic.addEventListener('ended',()=>{if(!bgMusic.loop)musicNext()});
+  bgMusic.addEventListener('ended',()=>{if(!bgMusic.loop)musicNext()});
 document.addEventListener('DOMContentLoaded',musicInit);
 </script>
 
